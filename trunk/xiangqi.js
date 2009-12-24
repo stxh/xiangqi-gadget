@@ -22,16 +22,16 @@ playerId = undefined;
 opponentId = undefined;
 
 DEFAULT_BOARD = [
-	'jmxsksxmj'.split(''),
+	'JMXSKSXMJ'.split(''),
 	'.........'.split(''),
-	'.p.....p.'.split(''),
-	'b.b.b.b.b'.split(''),
-	'.........'.split(''),
-	'.........'.split(''),
-	'B.B.B.B.B'.split(''),
 	'.P.....P.'.split(''),
+	'B.B.B.B.B'.split(''),
 	'.........'.split(''),
-	'JMXSKSXMJ'.split('')
+	'.........'.split(''),
+	'b.b.b.b.b'.split(''),
+	'.p.....p.'.split(''),
+	'.........'.split(''),
+	'jmxsksxmj'.split('')
 ];
 
 var MOVE_COMPASS = [
@@ -127,7 +127,7 @@ function codeToPiece(code) {
 	divPiece.className="piece";
 
 	var divBK = document.createElement('div');
-	if (code > 'a') divBK.className="bkred";
+	if (code < 'a') divBK.className="bkred";
 	else divBK.className="bkblack";
 	divBK.innerText="●";
 	divPiece.appendChild(divBK);
