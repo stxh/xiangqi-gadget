@@ -1,5 +1,5 @@
-//HOST = 'http://xiangqi-gadget.googlecode.com/svn/trunk/';
-HOST = "";
+HOST = 'http://xiangqi-gadget.googlecode.com/svn/trunk/';
+//HOST = "";
 SQUARE_SIZE = 26;
 CURSOR_BORDER = 2;
 
