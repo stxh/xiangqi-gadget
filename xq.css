@@ -5,6 +5,6 @@
 .bkred,.bkblack{font-family:宋体,仿宋体,"MS Song",SimSun,NSimSun;left:-3px;top:-7px;width:32px;position:absolute;font-size:30px;line-height:40px;border:none;}
 .bkred{color:rgb(255,0,0);}
 .bkblack{color:rgb(0,0,0);}
-.piecefront{top:4px;left:1px;width:24px;text-align:center;position:absolute;color:rgb(255,255,255);font-size:16px;line-height:20px;}
+.piecefront{top:3px;left:0px;width:24px;text-align:center;position:absolute;color:rgb(255,255,255);font-size:16px;line-height:20px;}
 .hide{display:none;}
 .grid{width:234;height:12;border:none;cellpadding:0;cellspacing:0;align:center;valign:bottom;}
