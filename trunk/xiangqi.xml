@@ -45,14 +45,13 @@
 		<div  id="canvas">
 			<table width=100% >
 				<tr>
-					<td COLSPAN=2>aaa</td>
+					<td COLSPAN=2 id="GameTitle">棋局标题</td>
 				</tr>
 				<tr>
 					<td>
 						<table>
 							<tr>
-								<td id="ucapture" height=30>
-								</td>
+								<td id="ucapture" height=30></td>
 							</tr>
 							<tr>
 								<td>
@@ -98,7 +97,7 @@
 						</table>
 					</td>
 					<td>
-						<textarea rows=20></textarea>
+						<textarea rows=20>棋谱</textarea>
 					</td>
 				</tr>
 				<tr>

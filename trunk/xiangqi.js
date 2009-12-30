@@ -1,4 +1,5 @@
-HOST = 'http://xiangqi-gadget.googlecode.com/svn/trunk/';
+//HOST = 'http://xiangqi-gadget.googlecode.com/svn/trunk/';
+HOST = "";
 SQUARE_SIZE = 26;
 CURSOR_BORDER = 2;
 
@@ -20,6 +21,28 @@ RankName = {
 board = null;
 playerId = undefined;
 opponentId = undefined;
+GameStarted = false;
+
+PIECE = {
+	'bing': 0,
+	'shi': 1,
+	'xiang': 2,
+	'pao': 3,
+	'ma': 4,
+	'jv': 5,
+	'shuai': 6
+};
+
+PIECE_MAP = {
+	'b': PIECE.bing,
+	's': PIECE.shi,
+	'x': PIECE.xiang,
+	'p': PIECE.pao,
+	'm': PIECE.ma,
+	'j': PIECE.jv,
+	'k': PIECE.shuai
+};
+
 
 DEFAULT_BOARD = [
 	'JMXSKSXMJ'.split(''),
@@ -98,8 +121,8 @@ function coordsToPos(coords) {
 
 function posToCoords(pos) {
 	boardPos = getElementPos(board.root);
-	var y = (pos.y - boardPos.y - SQUARE_SIZE/2) / SQUARE_SIZE;
-	var x = (pos.x - boardPos.x - SQUARE_SIZE/2) / SQUARE_SIZE;
+	var y = (pos.y - boardPos.y) / SQUARE_SIZE;
+	var x = (pos.x - boardPos.x) / SQUARE_SIZE;
 	y = Math.floor(y);
 	x = Math.floor(x);
 	return newCoords(y, x);
@@ -123,21 +146,16 @@ function setPos(el, pos) {
 }
 
 function codeToPiece(code) {
-	var divPiece = document.createElement('div');
-	divPiece.className="piece";
+	var img = document.createElement('img');
+    var color = getColor(code);
+    var src = (color == COLOR.red ? 'r' : 'b');
+    src = code.toLowerCase() + src + '.png';
 
-	var divBK = document.createElement('div');
-	if (code < 'a') divBK.className="bkred";
-	else divBK.className="bkblack";
-	divBK.innerText="●";
-	divPiece.appendChild(divBK);
+	if (HOST) img.src = HOST + '/' + src;
+	else img.src = src;
 
-	var divName = document.createElement('div');
-	divName.className = "piecefront";
-	divName.innerText = RankName[code];
-	divPiece.appendChild(divName);
-
-	return divPiece;
+	img.className = 'piece';
+    return img;
 }
 
 function getOtherColor(color) {
@@ -223,6 +241,24 @@ function applyRotation(coords) {
 }
 
 
+function Piece(color, type) {
+	this.color = color;
+	this.type = type;
+}
+
+function getColor(ch) {
+	if (ch >= 'A' && ch <= 'Z') {
+		return COLOR.black;
+	} else if (ch >= 'a' && ch <= 'z') {
+		return COLOR.red;
+	}
+	throw 'Error: getColor()';
+}
+
+function getType(ch) {
+	return PIECE_MAP[ch.toLowerCase()];
+}
+
 //Board
 function Board() {
 	var self = this;
@@ -238,14 +274,61 @@ Board.onClick = function(e) {
 	if (!board) {
 	  return;
 	}
+
+	var pos = getMousePos(e);
+	coords = posToCoords(pos);
+
+	if (!GameStarted) {
+		var piece=board.getPiece(coords);
+		//if (piece) alert(piece.color);
+	}
+
 	if (!isMyTurn()) {
 	  return;
 	}
-	var pos = getMousePos(e);
-	coords = posToCoords(pos);
-	if (!board.isValidMove(coords)) return;
+    applyRotation(coords);
+    board.onSelectSquare(coords);
+};
 
-	board.putAStone(coords);
+
+Board.prototype.getPiece = function(coords) {
+	var square = this.state[coords.row][coords.col];
+	alert("row:"+coords.row+" col:"+coords.col+" ch:"+square);
+	if (square == EMPTY_SPACE) {
+		return null;
+	}
+	return new Piece(getColor(square), getType(square));
+};
+
+Board.prototype.onSelectSquare = function(coords) {
+	var prev = this.cursor;
+	var piece = this.getPiece(coords);
+	// If a square was selected.
+	if (prev) {
+		if (coordsEqual(prev, coords)) {
+			// Deselect.
+			this.cursor = null;
+		} else {
+			var prevPiece = this.getPiece(this.cursor);
+			if (piece) {
+				if (prevPiece.color == piece.color) {
+					// Selecting a new piece.
+					this.cursor = coords;
+				} else {
+					// Attacking another piece.
+					this.attemptMove(prev, coords);
+				}
+			} else {
+				// Moving to an empty square.
+				this.attemptMove(prev, coords);
+			}
+		}
+	} else {
+		if (piece && piece.color == gameState.current) {
+			this.cursor = coords;
+		}
+	}
+	this.render();
 };
 
 Board.prototype.checkCapture = function(ch) {
