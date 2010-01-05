@@ -1,5 +1,10 @@
+/* xiangqi wave gadget js
+*
+* By StXh <stxh007@gmail.com> 2010-01-05 20:46:21
+*/
+
+HOST = "";
 HOST = 'http://xiangqi-gadget.googlecode.com/svn/trunk/';
-//HOST = "";
 SQUARE_SIZE = 26;
 CURSOR_BORDER = 2;
 
@@ -201,13 +206,16 @@ function setInfo(msg) {
 	$('info').innerHTML = msg;
 }
 
+function setTitle() {
+	$('GameTitle').innerHTML = "红："+gameState.red+" vs 黑："+gameState.black;
+}
+
 function selectColor(color) {
+	//alert("color="+color);
 	if (color == COLOR.black) {
-		gameState.black = playerId;
-		gameState.white = opponentId;
+		gameState.black = getMyID();
 	} else {
-		gameState.black = opponentId;
-		gameState.white = playerId;
+		gameState.red = getMyID();
 	}
 	updateGameState();
 }
@@ -237,6 +245,7 @@ function applyRotation(coords) {
 	if (getMyColor() == COLOR.black) {
 		coords.col = MAXCOL - coords.col -1;
 		coords.row = MAXROW - coords.row -1;
+		turnGrid(COLOR.black);
 	}
 }
 
@@ -247,9 +256,9 @@ function Piece(color, type) {
 }
 
 function getColor(ch) {
-	if (ch >= 'A' && ch <= 'Z') {
+	if (ch >= 'a' && ch <= 'z') {
 		return COLOR.black;
-	} else if (ch >= 'a' && ch <= 'z') {
+	} else if (ch >= 'A' && ch <= 'Z') {
 		return COLOR.red;
 	}
 	throw 'Error: getColor()';
@@ -277,23 +286,25 @@ Board.onClick = function(e) {
 
 	var pos = getMousePos(e);
 	coords = posToCoords(pos);
+    applyRotation(coords);
 
-	if (!GameStarted) {
-		var piece=board.getPiece(coords);
-		//if (piece) alert(piece.color);
+	var piece=board.getPiece(coords);
+	if (!playerId && piece) {
+		playerId=getMyID();
+        selectColor(piece.color);
+       	setTitle();
 	}
 
 	if (!isMyTurn()) {
 	  return;
 	}
-    applyRotation(coords);
     board.onSelectSquare(coords);
 };
 
 
 Board.prototype.getPiece = function(coords) {
 	var square = this.state[coords.row][coords.col];
-	alert("row:"+coords.row+" col:"+coords.col+" ch:"+square);
+	//alert("row:"+coords.row+" col:"+coords.col+" ch:"+square);
 	if (square == EMPTY_SPACE) {
 		return null;
 	}
@@ -437,17 +448,17 @@ Board.prototype.render = function() {
 	*/
 };
 
-  function resign() {
-	var myID=wave.getViewer().getId();
+function resign() {
+	var myID=getMyID();
 	if (myID != gameState.black && myID != gameState.white) {
 		return;
 	}
-    gameState.winner = getOpponentColor();
-    updateGameState();
-  }
+	gameState.winner = getOpponentColor();
+	updateGameState();
+}
 
 function leave() {
-	var myID=wave.getViewer().getId();
+	var myID=getMyID();
 	if (myID == gameState.black) {
 	    gameState.black = undefined;
 		gameState.blackName = undefined;
@@ -461,7 +472,7 @@ function leave() {
 }
 
 function rematch() {
-	var myID=wave.getViewer().getId();
+	var myID=getMyID();
 	if (myID != gameState.black && myID != gameState.white) {
 		return;
 	}
@@ -484,9 +495,9 @@ function onLanguageChange(selectedLang) {
 	lang= selectedLang;
 }
 
-function setGameTitle() {
-    $('blackname').innerHTML = gameState.blackName;
-    $('whitename').innerHTML = gameState.whiteName;
+function getMyID() {
+	return wave.getViewer().getId();
+	//return "stxh007@gmail.com";
 }
 
 function getPlayerName(pid) {
@@ -507,10 +518,6 @@ function onStateChange(state) {
 
 	if (!board)
 		return;
-
-	if (!playerId) {
-		playerId = wave.getViewer().getId();
-	}
 
 	var tempState = JSON.parse(state.get('gameState','{}'));
 	if (tempState && tempState.board){
